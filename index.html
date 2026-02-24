@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Darshan | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    :root {
+      --gold: #d4a017;
+      --gold-light: #f5d06e;
+      --gold-dim: #8a6a10;
+      --red: #c0392b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+
+    /* ================================ INTRO ================================ */
+    #intro { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; background: #000; overflow: hidden; }
+    #wukongVideo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 2s ease; }
+    #vignette { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.96) 100%); z-index: 5; pointer-events: none; }
+    #colorgrade { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 6; background: linear-gradient(135deg, rgba(50,25,0,0.25), rgba(120,70,0,0.06), rgba(30,8,0,0.28)); pointer-events: none; }
+    #grain { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 7; opacity: 0.08; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 150px; animation: grain-move 0.09s steps(1) infinite; }
+    @keyframes grain-move { 0% { background-position: 0 0; } 33% { background-position: -35px 12px; } 66% { background-position: 18px -18px; } }
+    .cbar { position: absolute; left: 0; right: 0; background: #000; z-index: 20; transition: height 1.3s ease; }
+    #cbar-top { top: 0; height: 14%; } #cbar-bottom { bottom: 0; height: 14%; }
+    #cbar-top.open { height: 0; } #cbar-bottom.open { height: 0; }
+    #flash { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 15; background: #fffaf0; opacity: 0; pointer-events: none; }
+    #kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; font-size: clamp(120px, 26vw, 280px); color: rgba(212,160,23,0); font-weight: 900; pointer-events: none; transition: color 3s ease; }
+    #kanji.show { color: rgba(212,160,23,0.07); }
+    #text-top { position: absolute; top: 19%; left: 0; right: 0; text-align: center; z-index: 25; font-family: "Cinzel Decorative", serif; font-size: clamp(9px, 1.2vw, 13px); letter-spacing: 10px; text-transform: uppercase; color: rgba(245,208,110,0); text-shadow: 0 0 40px rgba(212,160,23,0.9); transition: color 2.2s ease, letter-spacing 2.2s ease; }
+    #text-top.show { color: rgba(245,208,110,0.8); letter-spacing: 15px; }
+    #divider-line { position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%); z-index: 25; width: 0; height: 1px; background: linear-gradient(90deg, transparent, #d4a017, #f5d06e, #d4a017, transparent); transition: width 1.8s ease 0.3s; }
+    #divider-line.show { width: 300px; }
+    #text-name { position: absolute; bottom: 18%; left: 0; right: 0; text-align: center; z-index: 25; font-family: "Cinzel Decorative", serif; font-size: clamp(32px, 8vw, 90px); letter-spacing: 4px; color: rgba(245,208,110,0); opacity: 0; text-shadow: 0 0 80px rgba(212,160,23,1), 0 4px 40px rgba(0,0,0,0.95); transition: color 1.6s ease, letter-spacing 1.6s ease, opacity 1.6s ease; }
+    #text-name.show { color: rgba(245,208,110,0.97); letter-spacing: 18px; opacity: 1; }
+    #text-sub { position: absolute; bottom: 14%; left: 0; right: 0; text-align: center; z-index: 25; font-family: "Crimson Pro", serif; font-size: clamp(10px, 1.5vw, 15px); letter-spacing: 5px; text-transform: uppercase; color: rgba(200,174,114,0); transition: color 1.6s ease 0.7s; }
+    #text-sub.show { color: rgba(200,174,114,0.75); }
+    canvas#ptc { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+    #progress { position: absolute; bottom: 0; left: 0; height: 2px; width: 0%; background: linear-gradient(90deg, var(--red), var(--gold), #f5d06e); z-index: 30; }
+    #skipBtn { position: absolute; bottom: 3vh; right: 3vw; z-index: 50; color: rgba(212,160,23,0.5); font-family: "Crimson Pro", serif; font-size: 12px; letter-spacing: 3px; cursor: pointer; border: 1px solid rgba(212,160,23,0.25); background: rgba(0,0,0,0.7); padding: 7px 16px; text-transform: uppercase; transition: all 0.3s; }
+    #skipBtn:hover { color: #f5d06e; border-color: #d4a017; }
+    #intro.fade-out { animation: intro-fadeout 1.6s forwards; }
+    @keyframes intro-fadeout { 0% { opacity: 1; } 100% { opacity: 0; pointer-events: none; } }
+    #novideo { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; background: radial-gradient(ellipse at 50% 60%, #2a1506 0%, #0a0704 60%, #000 100%); opacity: 0; transition: opacity 1.5s ease; }
+    #novideo.show { opacity: 1; }
+
+    /* ================================ PORTFOLIO ================================ */
+    #portfolio { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 500; overflow: hidden; opacity: 0; pointer-events: none; transition: opacity 1.4s ease; font-family: "Crimson Pro", Georgia, serif; color: #e8d5a0; background: #0a0704; }
+    #portfolio.visible { opacity: 1; pointer-events: auto; }
+    #portfolio::before { content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(212,160,23,0.07) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 80% 70%, rgba(192,57,43,0.05) 0%, transparent 60%); z-index: -1; pointer-events: none; }
+    #portfolio::after { content: "\609F\7A7A"; position: fixed; font-size: clamp(200px, 35vw, 450px); color: rgba(212,160,23,0.03); font-weight: 900; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: -1; animation: breathe 8s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.5; } }
+
+    /* NAVBAR */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 50px; background: linear-gradient(90deg, rgba(10,7,4,0.97), rgba(26,18,8,0.9)); border-bottom: 1px solid rgba(212,160,23,0.25); position: relative; z-index: 100; backdrop-filter: blur(12px); height: 64px; }
+    nav::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--red), var(--gold), transparent); animation: scanline 3s ease-in-out infinite; }
+    @keyframes scanline { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .logo { font-family: "Cinzel Decorative", serif; font-size: 20px; color: var(--gold-light); text-shadow: 0 0 20px rgba(212,160,23,0.6); letter-spacing: 4px; }
+    nav a { color: #c9ae72; text-decoration: none; margin-left: 28px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; font-weight: 300; transition: all 0.3s; position: relative; }
+    .key-hint { display: inline-block; background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.3); color: rgba(212,160,23,0.6); font-size: 9px; letter-spacing: 0; padding: 1px 5px; border-radius: 2px; margin-left: 5px; vertical-align: middle; font-family: monospace; }
+    nav a::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.3s; }
+    nav a:hover, nav a.active { color: var(--gold-light); }
+    nav a:hover::after, nav a.active::after { width: calc(100% - 28px); }
+    nav a.active { color: var(--gold); }
+
+    /* PAGE SECTIONS */
+    .page-section { position: absolute; top: 64px; left: 0; right: 0; bottom: 0; overflow-y: auto; opacity: 0; pointer-events: none; transform: translateY(25px); transition: opacity 0.45s ease, transform 0.45s ease; }
+    .page-section.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    /* ABOUT / HERO */
+    #page-about { display: flex; flex-direction: column; align-items: center; padding: 36px 20px 80px; }
+    .hero-ring { width: 170px; height: 170px; border-radius: 50%; border: 2px solid rgba(212,160,23,0.5); position: relative; margin-bottom: 22px; animation: spin 20s linear infinite; box-shadow: 0 0 40px rgba(212,160,23,0.2); flex-shrink: 0; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .hero-ring::before { content: ""; position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(192,57,43,0.4); }
+    .profile-wrap { position: absolute; inset: 20px; border-radius: 50%; overflow: hidden; animation: spin 20s linear infinite reverse; }
+    .profile-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-fallback { width: 100%; height: 100%; background: linear-gradient(135deg, #1a1208, #2a1f0a); display: flex; align-items: center; justify-content: center; font-size: 58px; border-radius: 50%; }
+    .hero-title { font-family: "Cinzel Decorative", serif; font-size: clamp(26px, 4.5vw, 52px); line-height: 1.1; margin-bottom: 10px; text-align: center; }
+    .hero-title .name { color: var(--gold-light); display: block; text-shadow: 0 0 30px rgba(212,160,23,0.5); }
+    .hero-subtitle { font-size: 15px; color: #b09050; letter-spacing: 4px; text-transform: uppercase; font-weight: 300; font-style: italic; text-align: center; margin-bottom: 16px; }
+    .divider { width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 14px auto; }
+    .divider-symbol { text-align: center; color: var(--gold-dim); font-size: 16px; margin: 4px 0; }
+
+    /* About grid cards */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 820px; width: 100%; margin-top: 16px; }
+    @media(max-width: 600px) { .about-grid { grid-template-columns: 1fr; } }
+    .about-card { background: linear-gradient(135deg, rgba(26,18,8,0.95), rgba(15,10,4,0.98)); border: 1px solid rgba(212,160,23,0.2); border-radius: 4px; padding: 22px 26px; position: relative; overflow: hidden; transition: border-color 0.4s, box-shadow 0.4s; }
+    .about-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--red), var(--gold), transparent); opacity: 0; transition: opacity 0.4s; }
+    .about-card:hover { border-color: rgba(212,160,23,0.5); box-shadow: 0 0 30px rgba(212,160,23,0.1); }
+    .about-card:hover::before { opacity: 1; }
+    .about-card-icon { font-size: 22px; margin-bottom: 8px; }
+    .about-card-title { font-family: "Cinzel Decorative", serif; font-size: 11px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+    .about-card-text { font-size: 14px; line-height: 1.75; color: #c9ae72; font-weight: 300; }
+    .about-full { max-width: 820px; width: 100%; margin-top: 14px; }
+    .about-full .about-card { padding: 26px 30px; }
+    .about-full .about-card-text { font-size: 15px; line-height: 1.9; }
+
+    /* JQUERY TOGGLE SECTION STYLING */
+    #resumeContent {
+        padding: 20px;
+        background: rgba(212, 160, 23, 0.05);
+        border-radius: 4px;
+        margin-top: 15px;
+        border-left: 2px solid var(--gold);
+    }
+    .resume-item { margin-bottom: 12px; }
+    .resume-label { color: var(--gold); font-weight: bold; text-transform: uppercase; font-size: 12px; }
+
+    /* SECTION PAGES */
+    #page-skills, #page-projects, #page-contact { padding: 40px 20px 80px; display: flex; flex-direction: column; align-items: center; }
+    .section-header { text-align: center; margin-bottom: 28px; width: 100%; max-width: 820px; }
+    .section-label { font-family: "Cinzel Decorative", serif; font-size: 11px; letter-spacing: 5px; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+    .section-title { font-family: "Cinzel Decorative", serif; font-size: clamp(22px, 4vw, 36px); color: var(--gold-light); margin-bottom: 6px; }
+
+    /* CARD */
+    .card { background: linear-gradient(135deg, rgba(26,18,8,0.95), rgba(15,10,4,0.98)); border: 1px solid rgba(212,160,23,0.2); border-radius: 4px; padding: 40px; position: relative; overflow: hidden; transition: border-color 0.4s, box-shadow 0.4s; width: 100%; max-width: 820px; }
+    .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--red), var(--gold), transparent); opacity: 0; transition: opacity 0.4s; }
+    .card::after { content: ""; position: absolute; bottom: 10px; right: 10px; width: 30px; height: 30px; border-right: 1px solid rgba(212,160,23,0.3); border-bottom: 1px solid rgba(212,160,23,0.3); }
+    .card-tl { position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; border-left: 1px solid rgba(212,160,23,0.3); border-top: 1px solid rgba(212,160,23,0.3); }
+    .card:hover { border-color: rgba(212,160,23,0.5); box-shadow: 0 0 40px rgba(212,160,23,0.1); }
+    .card:hover::before { opacity: 1; }
+    .card p { font-size: 17px; line-height: 1.85; color: #c9ae72; font-weight: 300; }
+
+    /* SKILLS */
+    .skills-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+    .skill { padding: 10px 22px; border: 1px solid rgba(212,160,23,0.35); border-radius: 2px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #c9ae72; position: relative; overflow: hidden; transition: all 0.3s; background: rgba(212,160,23,0.04); cursor: default; }
+    .skill::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, var(--gold), var(--red)); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; z-index: -1; }
+    .skill:hover { color: #0a0704; border-color: var(--gold); }
+    .skill:hover::before { transform: scaleX(1); }
+
+    /* PROJECTS */
+    .project-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid rgba(212,160,23,0.1); transition: padding-left 0.3s; }
+    .project-item:last-child { border-bottom: none; }
+    .project-item:hover { padding-left: 10px; }
+    .project-num { font-family: "Cinzel Decorative", serif; font-size: 28px; color: rgba(212,160,23,0.2); min-width: 50px; transition: color 0.3s; }
+    .project-item:hover .project-num { color: var(--gold); }
+    .project-info h3 { font-family: "Cinzel Decorative", serif; font-size: 15px; color: var(--gold-light); margin-bottom: 6px; }
+    .project-info p { font-size: 14px; color: #857550; font-style: italic; }
+
+    /* CONTACT */
+    .contact-detail { display: flex; align-items: center; gap: 15px; margin: 16px 0; font-size: 16px; color: #c9ae72; }
+    .contact-icon { width: 36px; height: 36px; border: 1px solid rgba(212,160,23,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
+    .contact-detail:hover .contact-icon { background: var(--gold); color: #0a0704; }
+    .btn-group { display: flex; gap: 16px; margin-top: 30px; flex-wrap: wrap; }
+    .btn { padding: 14px 32px; text-decoration: none; font-family: "Cinzel Decorative", serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; position: relative; overflow: hidden; transition: all 0.3s; border: 1px solid var(--gold); color: var(--gold-light); background: transparent; display: inline-block; cursor: pointer; outline: none; }
+    .btn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, var(--gold), var(--red)); transform: translateX(-100%); transition: transform 0.35s; z-index: -1; }
+    .btn:hover { color: #0a0704; border-color: transparent; }
+    .btn:hover::before { transform: translateX(0); }
+
+    /* KEYBOARD TOAST */
+    #key-toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px); z-index: 999; background: rgba(10,7,4,0.96); border: 1px solid rgba(212,160,23,0.4); color: var(--gold-light); font-family: "Crimson Pro", serif; font-size: 13px; letter-spacing: 3px; padding: 10px 22px; border-radius: 2px; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; white-space: nowrap; pointer-events: none; }
+    #key-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @keyframes float-up { 0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.3; } 100% { transform: translateY(-10vh); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+  <div id="intro">
+    <video id="wukongVideo" playsinline muted preload="auto"></video>
+    <div id="novideo"></div>
+    <div id="vignette"></div>
+    <div id="colorgrade"></div>
+    <div id="grain"></div>
+    <div id="flash"></div>
+    <div id="kanji">&#x609F;&#x7A7A;</div>
+    <canvas id="ptc"></canvas>
+    <div class="cbar" id="cbar-top"></div>
+    <div class="cbar" id="cbar-bottom"></div>
+    <div id="text-top">Black Myth &nbsp;&middot;&nbsp; The Great Sage</div>
+    <div id="divider-line"></div>
+    <div id="text-name">DARSHAN</div>
+    <div id="text-sub">BSc IT &nbsp;&middot;&nbsp; Web Developer &nbsp;&middot;&nbsp; Tech Lover</div>
+    <div id="progress"></div>
+    <button id="skipBtn" onclick="endIntro()">SKIP &#x203A;</button>
+  </div>
+
+  <div id="portfolio">
+
+    <nav>
+      <div class="logo">D &middot; A &middot; R &middot; S &middot; H &middot; A &middot; N</div>
+      <div>
+        <a href="#" onclick="showSection('about');return false;" id="nav-about" class="active">About <span class="key-hint">A</span></a>
+        <a href="#" onclick="showSection('skills');return false;" id="nav-skills">Skills <span class="key-hint">S</span></a>
+        <a href="#" onclick="showSection('projects');return false;" id="nav-projects">Projects <span class="key-hint">P</span></a>
+        <a href="#" onclick="showSection('contact');return false;" id="nav-contact">Contact <span class="key-hint">C</span></a>
+      </div>
+    </nav>
+
+    <div class="page-section active" id="page-about">
+
+      <div class="hero-ring">
+        <div class="profile-wrap">
+          <img id="profileImg" src="C:\Users\HP\Downloads\Darshan.jpg.jpeg" alt="Darshan">
+        </div>
+      </div>
+
+      <div class="hero-title">
+        Hi, I am <span class="name">Darshan</span>
+      </div>
+      <div class="divider-symbol">&#x2694;&nbsp;&#x262F;&nbsp;&#x2694;</div>
+      <div class="divider"></div>
+      <p class="hero-subtitle">BSc IT Student &nbsp;&middot;&nbsp; Web Developer &nbsp;&middot;&nbsp; Tech Lover</p>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="about-card-icon">&#x1F393;</div>
+          <div class="about-card-title">Education</div>
+          <div class="about-card-text">BSc Information Technology — Pursuing my degree with a strong focus on software development and computer science fundamentals.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">&#x1F4BB;</div>
+          <div class="about-card-title">Development</div>
+          <div class="about-card-text">Passionate web developer who loves building clean, functional, and visually stunning interfaces using HTML, CSS, JavaScript and more.</div>
+        </div>
+      </div>
+
+      <div class="about-full">
+        <div class="about-card">
+          <div class="about-card-title">&#x2609;&nbsp; My Story</div>
+          <div class="about-card-text">
+            My journey into technology started with a simple curiosity — how does a website actually work? That one question led me down a path of HTML, CSS, JavaScript, and beyond.
+          </div>
+          
+          <div style="margin-top: 30px; text-align: center;">
+            <button id="toggleResumeBtn" class="btn">View Resume Details</button>
+            
+            <div id="resumeContent" style="display: none; text-align: left;">
+              <div class="resume-item">
+                <span class="resume-label">University:</span> 
+                <p style="font-size: 15px;">Mumbai University - BSc IT (Information Technology)</p>
+              </div>
+              <div class="resume-item">
+                <span class="resume-label">Technical Focus:</span> 
+                <p style="font-size: 15px;">Object Oriented Programming, Web Technologies, Database Systems.</p>
+              </div>
+              <div class="resume-item">
+                <span class="resume-label">Certifications:</span> 
+                <p style="font-size: 15px;">Full Stack Web Development Certification (Online)</p>
+              </div>
+              <div class="resume-item">
+                <span class="resume-label">Soft Skills:</span> 
+                <p style="font-size: 15px;">Problem Solving, Team Collaboration, Quick Learner.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-section" id="page-skills">
+      <div class="section-header">
+        <div class="section-label">Skills</div>
+        <div class="section-title">My Skills</div>
+        <div class="divider"></div>
+      </div>
+      <div class="card">
+        <div class="card-tl"></div>
+        <div class="skills-grid">
+          <div class="skill">HTML</div>
+          <div class="skill">CSS</div>
+          <div class="skill">JavaScript</div>
+          <div class="skill">C++</div>
+          <div class="skill">Java</div>
+          <div class="skill">jQuery</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-section" id="page-projects">
+      <div class="section-header">
+        <div class="section-label">Projects</div>
+        <div class="section-title">My Projects</div>
+        <div class="divider"></div>
+      </div>
+      <div class="card">
+        <div class="card-tl"></div>
+        <div class="project-item">
+          <div class="project-num">01</div>
+          <div class="project-info">
+            <h3>Portfolio Website</h3>
+            <p>The warrior forges his own legend.</p>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">02</div>
+          <div class="project-info">
+            <h3>Online Banking System</h3>
+            <p>Guarding the treasury with the Iron Staff.</p>
+            <a href="https://github.com/Darshangreat/Darshan1" target="_blank" style="color: var(--gold); font-size: 11px; text-decoration: none; border: 1px solid rgba(212,160,23,0.3); padding: 4px 10px; margin-top: 10px; display: inline-block; text-transform: uppercase; letter-spacing: 1px;">View Source Code</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-section" id="page-contact">
+      <div class="section-header">
+        <div class="section-label">Contact</div>
+        <div class="section-title">Get In Touch</div>
+        <div class="divider"></div>
+      </div>
+      <div class="card">
+        <div class="card-tl"></div>
+        <div class="contact-detail">
+          <div class="contact-icon">&#x2709;</div>
+          darshan@gmail.com
+        </div>
+        <div class="btn-group">
+          <a href="#" class="btn">Instagram</a>
+          <a href="#" class="btn">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="key-toast"></div>
+  </div>
+
+  <script>
+    // JQUERY TOGGLE SCRIPT FOR YOUR COLLEGE TOPIC
+    $(document).ready(function(){
+      $("#toggleResumeBtn").click(function(){
+        // slideToggle is a powerful jQuery function
+        $("#resumeContent").slideToggle(600, function() {
+          // Dynamic button text change
+          if ($("#resumeContent").is(":visible")) {
+            $("#toggleResumeBtn").text("Hide Resume Details");
+          } else {
+            $("#toggleResumeBtn").text("View Resume Details");
+          }
+        });
+      });
+    });
+
+    // --- OLD JS LOGIC MAINTAINED FOR ANIMATIONS ---
+    var done = false;
+    var INTRO_END = 8.0;
+    var videoLoaded = false;
+    var fallbackStart = 0;
+
+    document.getElementById("profileImg").onerror = function() {
+      this.parentElement.innerHTML = "<div class='avatar-fallback'>&#x1F412;</div>";
+    };
+
+    var canvas = document.getElementById("ptc");
+    var ctx = canvas.getContext("2d");
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    function newParticle() {
+      return { x: Math.random() * canvas.width, y: canvas.height + 5, size: Math.random() * 2.5 + 0.4, speedY: -(Math.random() * 0.9 + 0.25), speedX: (Math.random() - 0.5) * 0.35, opacity: Math.random() * 0.65 + 0.2, isGold: Math.random() > 0.38, age: 0, maxAge: Math.random() * 200 + 80 };
+    }
+    var particles = [];
+    for (var i = 0; i < 110; i++) { var p = newParticle(); p.y = Math.random() * canvas.height; particles.push(p); }
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.x += p.speedX; p.y += p.speedY; p.age++;
+        if (p.age > p.maxAge || p.y < -5) { particles[i] = newParticle(); continue; }
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.isGold ? "rgba(212,160,23," + p.opacity + ")" : "rgba(220,55,25," + p.opacity + ")";
+        ctx.fill();
+      }
+      if (!done) requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    var timeline = [
+      { t: 0.3, fired: false, fn: function() { document.getElementById("cbar-top").classList.add("open"); document.getElementById("cbar-bottom").classList.add("open"); } },
+      { t: 0.9, fired: false, fn: function() { document.getElementById("wukongVideo").style.opacity = "1"; } },
+      { t: 2.5, fired: false, fn: function() { document.getElementById("text-top").classList.add("show"); document.getElementById("kanji").classList.add("show"); } },
+      { t: 4.5, fired: false, fn: function() { document.getElementById("divider-line").classList.add("show"); } },
+      { t: 5.1, fired: false, fn: function() { document.getElementById("text-name").classList.add("show"); document.getElementById("text-sub").classList.add("show"); } },
+      { t: 7.1, fired: false, fn: function() { var fl = document.getElementById("flash"); fl.style.opacity = "1"; setTimeout(function() { fl.style.transition = "opacity 0.8s ease"; fl.style.opacity = "0"; }, 60); } },
+      { t: 7.7, fired: false, fn: function() { endIntro(); } }
+    ];
+
+    function tick() {
+      if (done) return;
+      var currentTime = videoLoaded ? (document.getElementById("wukongVideo").currentTime || 0) : (Date.now() - fallbackStart) / 1000;
+      for (var i = 0; i < timeline.length; i++) { if (!timeline[i].fired && currentTime >= timeline[i].t) { timeline[i].fn(); timeline[i].fired = true; } }
+      document.getElementById("progress").style.width = Math.min(100, (currentTime / INTRO_END) * 100) + "%";
+      if (currentTime >= INTRO_END) { endIntro(); return; }
+      requestAnimationFrame(tick);
+    }
+
+    var vid = document.getElementById("wukongVideo");
+    vid.src = "wukong.mp4";
+    vid.addEventListener("canplay", function() {
+      videoLoaded = true;
+      vid.play().then(function() { requestAnimationFrame(tick); }).catch(function() { showTapOverlay(); });
+    }, { once: true });
+    vid.addEventListener("error", function() { document.getElementById("novideo").classList.add("show"); videoLoaded = false; fallbackStart = Date.now(); requestAnimationFrame(tick); });
+
+    function showTapOverlay() {
+      var overlay = document.createElement("div");
+      overlay.style.cssText = "position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;cursor:pointer;";
+      overlay.innerHTML = "<div style='text-align:center;font-family:Cinzel Decorative,serif;color:rgba(245,208,110,0.95);letter-spacing:6px;text-transform:uppercase;text-shadow:0 0 30px gold;'><div style='font-size:16px'>Tap to Enter</div><div style='font-size:44px;margin-top:14px'>&#x25B6;</div></div>";
+      overlay.onclick = function() { overlay.remove(); vid.play(); videoLoaded = true; requestAnimationFrame(tick); };
+      document.getElementById("intro").appendChild(overlay);
+    }
+
+    function endIntro() {
+      if (done) return;
+      done = true;
+      vid.pause();
+      document.getElementById("intro").classList.add("fade-out");
+      var portfolio = document.getElementById("portfolio");
+      portfolio.classList.add("visible");
+      showSection("about");
+      setTimeout(function() { document.getElementById("intro").style.display = "none"; }, 1800);
+    }
+
+    function showSection(name) {
+      document.querySelectorAll(".page-section").forEach(function(s) { s.classList.remove("active"); });
+      document.querySelectorAll("nav a").forEach(function(a) { a.classList.remove("active"); });
+      var target = document.getElementById("page-" + name);
+      if (target) { target.classList.add("active"); }
+      var navLink = document.getElementById("nav-" + name);
+      if (navLink) navLink.classList.add("active");
+    }
+  </script>
+</body>
+</html>
